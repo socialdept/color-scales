@@ -97,6 +97,13 @@ class TailwindCharacteristics
         foreach (self::SHADES as $shade) {
             $stopIndex = array_search($shade, self::ALL_STOPS);
 
+            // Preserve exact input color at valueStop only if hue and saturation shifts are default (0)
+            if ($shade === $valueStop && $this->h === 0.0 && $this->s === 0.0) {
+                $palette[$shade] = $inputColor;
+
+                continue;
+            }
+
             // Get tweaks for this stop
             $hTweak = $hueScale[$shade]['tweak'];
             $sTweak = $saturationScale[$shade]['tweak'];
