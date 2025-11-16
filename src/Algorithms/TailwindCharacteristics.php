@@ -95,13 +95,6 @@ class TailwindCharacteristics
         $palette = [];
 
         foreach (self::SHADES as $shade) {
-            if ($shade === $valueStop) {
-                // Preserve the exact input color at valueStop
-                $palette[$shade] = $inputColor;
-
-                continue;
-            }
-
             $stopIndex = array_search($shade, self::ALL_STOPS);
 
             // Get tweaks for this stop
@@ -112,13 +105,15 @@ class TailwindCharacteristics
             // Apply tweaks based on mode
             if ($this->mode === 'linear') {
                 $newH = fmod($baseH + $hTweak + 360, 360);
-                $newS = max(0, min(100, $baseS + $sTweak));
+                // Apply saturation as percentage of base saturation
+                $newS = max(0, min(100, $baseS + ($baseS * $sTweak / 100)));
                 $newL = max(0, min(100, $lTweak));
 
                 $palette[$shade] = Color::fromHsl($newH, $newS, $newL)->clampToRgb();
             } else {
                 $newH = fmod($baseH + $hTweak + 360, 360);
-                $newS = max(0, min(100, $baseS + $sTweak));
+                // Apply saturation as percentage of base saturation
+                $newS = max(0, min(100, $baseS + ($baseS * $sTweak / 100)));
                 $newL = max(0, min(100, $lTweak));
 
                 $palette[$shade] = Color::fromHsluv($newH, $newS, $newL)->clampToRgb();
@@ -202,7 +197,9 @@ class TailwindCharacteristics
 
     /**
      * Calculate saturation scale for all stops.
-     * Formula: min(100, (diff + 1) × s × (1 + diff / 10))
+     * When s is 0 (default), uses progressive formula based on distance from valueStop.
+     * When s is non-zero, applies uniform saturation shift to all shades.
+     * Formula (when s=0): min(100, (diff + 1) × s × (1 + diff / 10))
      */
     private function calculateSaturationScale(int $valueStopIndex): array
     {
@@ -210,7 +207,14 @@ class TailwindCharacteristics
         foreach (self::ALL_STOPS as $stop) {
             $stopIndex = array_search($stop, self::ALL_STOPS);
             $diff = abs($stopIndex - $valueStopIndex);
-            $tweak = $this->s !== 0 ? min(100, round(($diff + 1) * $this->s * (1 + $diff / 10))) : 0;
+
+            // When s is 0, use progressive formula; otherwise apply uniform shift
+            if ($this->s === 0) {
+                $tweak = min(100, round(($diff + 1) * $this->s * (1 + $diff / 10)));
+            } else {
+                $tweak = $this->s;
+            }
+
             $scale[$stop] = ['stop' => $stop, 'tweak' => $tweak];
         }
 
