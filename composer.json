@@ -1,22 +1,22 @@
 {
     "name": "socialdept/color-scales",
-    "description": ":package_description",
+    "description": "Generate Tailwind-compatible color palettes from any input color",
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Author Name",
-            "email": "author@email.com",
-            "homepage": "http://author.com"
+            "name": "Social Dept",
+            "email": "hello@socialdept.com"
         }
     ],
-    "homepage": "https://github.com/socialdept/color-scales",
-    "keywords": ["Laravel", "ColorScales"],
     "require": {
-        "illuminate/support": "~9"
+        "php": "^8.3",
+        "illuminate/support": "^12.0",
+        "hsluv/hsluv": "^2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~9.0",
-        "orchestra/testbench": "~7"
+        "phpunit/phpunit": "^12.0",
+        "friendsofphp/php-cs-fixer": "^3.89"
     },
     "autoload": {
         "psr-4": {
@@ -25,17 +25,21 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "SocialDept\\ColorScales\\Tests\\": "tests"
+            "SocialDept\\ColorScales\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
                 "SocialDept\\ColorScales\\ColorScalesServiceProvider"
-            ],
-            "aliases": {
-                "ColorScales": "SocialDept\\ColorScales\\Facades\\ColorScales"
-            }
+            ]
         }
-    }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "format": "vendor/bin/php-cs-fixer fix",
+        "format:check": "vendor/bin/php-cs-fixer fix --dry-run --diff"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
